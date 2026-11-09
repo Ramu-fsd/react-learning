@@ -1,0 +1,1 @@
+server:\n  port: 8086\nspring:\n  application:\n    name: account-service\n
