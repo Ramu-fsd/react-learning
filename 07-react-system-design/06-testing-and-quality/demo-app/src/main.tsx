@@ -1,0 +1,2 @@
+import React from "react";import ReactDOM from "react-dom/client";import {AccountCard} from "./components/AccountCard";import "./styles.css";
+function App(){return <main><small>REACT TESTING LAB</small><h1>Account overview</h1><p>This component is covered by a unit test and a component test.</p><AccountCard number="9988776655" balance={425600}/><footer>Run npm test to execute the sample tests.</footer></main>}ReactDOM.createRoot(document.getElementById("root")!).render(<React.StrictMode><App/></React.StrictMode>);

@@ -1,0 +1,1 @@
+import {describe,it,expect} from "vitest";import {maskAccount} from "./maskAccount";describe("maskAccount",()=>{it("shows only the final four digits",()=>{expect(maskAccount("1234567890")).toBe("•••• 7890");});it("handles short values",()=>{expect(maskAccount("123")).toBe("•••• 123");});});

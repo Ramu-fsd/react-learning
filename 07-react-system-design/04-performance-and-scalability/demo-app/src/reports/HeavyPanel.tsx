@@ -1,0 +1,1 @@
+export default function HeavyPanel(){return <section className="panel report"><small>LAZY-LOADED FEATURE</small><h2>Analytics summary</h2><div className="bars">{[42,68,54,82,61,92,73].map((v,i)=><div key={i} style={{height:`${v}%`}} title={`Week ${i+1}: ${v}`}/>)}</div><p>This component is loaded only after the user requests it.</p></section>}

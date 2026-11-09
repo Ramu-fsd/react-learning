@@ -1,0 +1,1 @@
+export function maskAccount(value:string){return `•••• ${value.slice(-4)}`;}
