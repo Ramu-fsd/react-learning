@@ -1,0 +1,29 @@
+import { useMemo, useState } from 'react';
+type Tx = {id:string; customer:string; beneficiary:string; amount:number; currency:string; status:'SETTLED'|'PENDING'|'FAILED'; date:string; reference:string};
+const seed:Tx[]=[
+{id:'TXN-82001',customer:'Aarav Mehta',beneficiary:'Northstar Supplies',amount:12500,currency:'USD',status:'SETTLED',date:'2026-11-08',reference:'INV-4401'},
+{id:'TXN-82002',customer:'Mira Shah',beneficiary:'Aster Technologies',amount:8400,currency:'USD',status:'PENDING',date:'2026-11-08',reference:'INV-4402'},
+{id:'TXN-82003',customer:'Dev Patel',beneficiary:'Meridian Logistics',amount:3200,currency:'USD',status:'FAILED',date:'2026-11-07',reference:'INV-4403'},
+{id:'TXN-82004',customer:'Anika Rao',beneficiary:'Cedar Financial',amount:18750,currency:'USD',status:'SETTLED',date:'2026-11-07',reference:'INV-4404'},
+{id:'TXN-82005',customer:'Ishaan Das',beneficiary:'BluePeak Consulting',amount:6150,currency:'USD',status:'PENDING',date:'2026-11-06',reference:'INV-4405'},
+{id:'TXN-82006',customer:'Sara Khan',beneficiary:'Orion Components',amount:9200,currency:'USD',status:'SETTLED',date:'2026-11-06',reference:'INV-4406'},
+{id:'TXN-82007',customer:'Kabir Nair',beneficiary:'Summit Healthcare',amount:4100,currency:'USD',status:'FAILED',date:'2026-11-05',reference:'INV-4407'},
+{id:'TXN-82008',customer:'Tara Iyer',beneficiary:'Evergreen Energy',amount:15300,currency:'USD',status:'SETTLED',date:'2026-11-05',reference:'INV-4408'},
+{id:'TXN-82009',customer:'Rohan Sen',beneficiary:'Pioneer Networks',amount:7300,currency:'USD',status:'PENDING',date:'2026-11-04',reference:'INV-4409'},
+{id:'TXN-82010',customer:'Nila Bose',beneficiary:'Atlas Manufacturing',amount:11000,currency:'USD',status:'SETTLED',date:'2026-11-04',reference:'INV-4410'}];
+const cls=(s:string)=>s==='SETTLED'?'green':s==='FAILED'?'red':'amber';
+export default function App(){
+ const [rows,setRows]=useState(seed),[query,setQuery]=useState(''),[status,setStatus]=useState('ALL'),[page,setPage]=useState(1),[selected,setSelected]=useState<Tx|null>(null);
+ const pageSize=5;
+ const filtered=useMemo(()=>rows.filter(x=>(status==='ALL'||x.status===status)&&`${x.id} ${x.customer} ${x.beneficiary}`.toLowerCase().includes(query.toLowerCase())),[rows,query,status]);
+ const visible=filtered.slice((page-1)*pageSize,page*pageSize);
+ function exportCsv(){const csv=['id,customer,beneficiary,amount,currency,status,date',...filtered.map(x=>[x.id,x.customer,x.beneficiary,x.amount,x.currency,x.status,x.date].join(','))].join('\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const a=document.createElement('a');a.href=url;a.download='transactions-demo.csv';a.click();URL.revokeObjectURL(url);}
+ return <div className="shell"><header className="header"><span className="brand">FinOps · Transaction Control</span><small>Operations workspace / Transactions</small></header><main className="container">
+ <h1>Transaction management</h1><p className="sub">Search, review and export synthetic payment activity.</p>
+ <div className="grid"><div className="card metric"><span>Total transactions</span><strong>{rows.length}</strong></div><div className="card metric"><span>Settled value</span><strong>${rows.filter(x=>x.status==='SETTLED').reduce((a,x)=>a+x.amount,0).toLocaleString()}</strong></div><div className="card metric"><span>Pending review</span><strong>{rows.filter(x=>x.status==='PENDING').length}</strong></div><div className="card metric"><span>Failed</span><strong>{rows.filter(x=>x.status==='FAILED').length}</strong></div></div>
+ <section className="panel"><h2>Transaction register</h2><div className="toolbar"><input aria-label="Search transactions" placeholder="Search ID, customer or beneficiary" value={query} onChange={e=>{setQuery(e.target.value);setPage(1)}}/><select aria-label="Status filter" value={status} onChange={e=>{setStatus(e.target.value);setPage(1)}}><option>ALL</option><option>SETTLED</option><option>PENDING</option><option>FAILED</option></select><button onClick={exportCsv}>Export CSV</button></div>
+ <div style={{overflowX:'auto'}}><table><thead><tr><th>Transaction</th><th>Customer</th><th>Beneficiary</th><th>Amount</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>{visible.map(x=><tr key={x.id}><td>{x.id}</td><td>{x.customer}</td><td>{x.beneficiary}</td><td>{x.currency} {x.amount.toLocaleString()}</td><td>{x.date}</td><td><span className={`badge ${cls(x.status)}`}>{x.status}</span></td><td><button className="secondary" onClick={()=>setSelected(x)}>View</button></td></tr>)}</tbody></table>{visible.length===0&&<div className="empty">No transactions match your filters.</div>}</div>
+ <div className="toolbar"><small>Showing {visible.length} of {filtered.length}</small><div className="actions"><button className="secondary" disabled={page===1} onClick={()=>setPage(p=>p-1)}>Previous</button><span>Page {page} / {Math.max(1,Math.ceil(filtered.length/pageSize))}</span><button className="secondary" disabled={page>=Math.ceil(filtered.length/pageSize)} onClick={()=>setPage(p=>p+1)}>Next</button></div></div></section>
+ {selected&&<section className="panel" style={{marginTop:16}}><div className="toolbar"><h2>Transaction details · {selected.id}</h2><button className="secondary" onClick={()=>setSelected(null)}>Close</button></div><div className="grid"><div><small>Customer</small><p>{selected.customer}</p></div><div><small>Beneficiary</small><p>{selected.beneficiary}</p></div><div><small>Invoice reference</small><p>{selected.reference}</p></div><div><small>Lifecycle status</small><p>{selected.status}</p></div></div></section>}
+ <p className="sub" style={{marginTop:18}}>Demo only: CSV export contains synthetic records. Production access and export permissions must be enforced by backend services.</p></main><footer>Ramu Boya · React portfolio project</footer></div>;
+}
